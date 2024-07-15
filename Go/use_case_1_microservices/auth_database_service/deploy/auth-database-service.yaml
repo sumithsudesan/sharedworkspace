@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-database-service
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-database-service
+  template:
+    metadata:
+      labels:
+        app: auth-database-service
+    spec:
+      containers:
+        - name: auth-database-service
+          image: user-auth:latest
+          ports:
+            - containerPort: 50051
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/auth-database/
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: auth-database-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-database-service
+  namespace: default
+spec:
+  selector:
+    app: auth-database-service
+  ports:
+    - protocol: TCP
+      port: 50051
+      targetPort: 50051
+  type: ClusterIP

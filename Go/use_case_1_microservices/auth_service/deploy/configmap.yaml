@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-service-config
+data:
+  config.yaml: |
+    grpc_port: ":50051"
+    mysql_dsn: "user:password@tcp(mysql:3306)/dbname"
+    jwt_secret_key: "jwt_secret_key"

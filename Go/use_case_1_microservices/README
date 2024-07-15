@@ -1,0 +1,11 @@
+Organize the shared .proto files in a separate repository.
+
+In auth_service and auth_data_service repositories, add the proto-definitions repository as a submodule.
+
+Navigate to the root of your service repository(auth_database_service) and run:
+
+git submodule add https://github.com/your-org/proto-definitions.git data-definitions
+
+
+protoc -I proto-definitions/ --go_out=. --go-grpc_out=. proto-definitions/auth/auth.proto
+protoc -I proto-definitions/ --go_out=. --go-grpc_out=. proto-definitions/user/user.proto

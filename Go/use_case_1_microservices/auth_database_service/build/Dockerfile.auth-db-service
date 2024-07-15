@@ -1,0 +1,53 @@
+# Build stage
+FROM golang:1.18-alpine as builder
+
+# Set environment variables
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
+
+# Create and set working directory
+WORKDIR /app
+
+# Copy go.mod and go.sum
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy the source code
+COPY ./cmd ./cmd
+COPY ./pkg ./pkg
+COPY ./data ./data
+
+# Build the Go application
+RUN go build -o auth_data_service ./cmd/main.go
+
+# Run stage
+FROM alpine:latest
+
+# Set environment variables
+ENV DB_HOST=your-db-host \
+    DB_PORT=3306 \
+    DB_USER=root \
+    DB_PASSWORD=ttttt \
+    DB_NAME=user \
+    QUERY_TIMEOUT_MS=1000 \
+    DRIVER=mysql \
+    GRPC_PORT=50051
+
+# Install necessary packages
+RUN apk --no-cache add ca-certificates
+
+# Create directory for the application
+WORKDIR /root/
+
+# Copy the binary from the build stage
+COPY --from=builder /app/auth_data_service .
+
+# Expose the gRPC port
+EXPOSE 50051
+
+# Command to run the binary
+CMD ["./auth_data_service"]
