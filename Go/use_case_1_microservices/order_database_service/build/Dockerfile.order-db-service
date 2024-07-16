@@ -1,0 +1,43 @@
+# Stage 1: Build the Go binary
+FROM golang:1.18-alpine AS builder
+
+# Set the working directory
+WORKDIR /app
+
+# Install required packages
+RUN apk add --no-cache git
+
+# Copy go.mod and go.sum to the working directory
+COPY go.mod go.sum ./
+
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod download
+
+# Copy the source code into the container
+COPY cmd/ cmd/
+COPY pkg/ pkg/
+COPY data-definitions/ data-definitions/
+
+# Generate the gRPC code from proto files
+RUN protoc --go_out=. --go-grpc_out=. data-definitions/order/*.proto
+
+# Build the Go app
+RUN go build -o /order_database_service cmd/main.go
+
+# Stage 2: Run the binary
+FROM alpine:latest
+
+# Set the working directory
+WORKDIR /root/
+
+# Copy the built binary from the builder stage
+COPY --from=builder /order_database_service .
+
+# Copy the config directory
+COPY deploy/configmap.yaml /etc/order_database_service/config.yaml
+
+# Expose the port the service will run on
+EXPOSE 50051
+
+# Command to run the binary
+CMD ["./order_database_service"]

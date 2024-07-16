@@ -66,14 +66,36 @@ func (s *AuthService) Register(ctx context.Context, req *RegisterRequest) (*Regi
     // Store the user details in DB 
     log.Printf("[INFO] Registering user: %s", req.Username)
 
-    // In a real implementation, you would store the user details in a database
-     // if err := storeUserInDatabase(req.Username, hashedPassword); err != nil {
-    //     log.Printf("Failed to store user in database: %v", err)
-    //     return nil, status.Errorf(codes.Internal, "could not register user")
-    // }
+    // Store user details in DB (assuming this is done in your client)
+    user := &pb.User{
+        Username:     req.Username,
+        PasswordHash: hashedPassword,
+        Email:        req.Email,
+    }
+
+    // Call AuthDataService to save user details
+    _, err = s.client.SaveUser(ctx, &pb.SaveUserRequest{User: user})
+    if err != nil {
+        log.Printf("[ERROR] Failed to save user: %v", err)
+        return nil, status.Errorf(codes.Internal, "Failed to register user")
+    }
 
     /// user registered successfully
     return &RegisterResponse{Message: "user registered successfully"}, nil
+}
+
+// Implement Authenticate method for AuthService
+func (s *AuthService) Authenticate(ctx context.Context, req *pb.AuthenticateRequest) (*pb.AuthenticateResponse, error) {
+    token := req.Token
+
+    // Validate JWT token
+    claims, err := s.validateJWTToken(token)
+    if err != nil {
+        return nil, status.Errorf(codes.Unauthenticated, "Invalid token")
+    }
+
+    // Token is valid
+    return &pb.AuthenticateResponse{Valid: true, Message: "Token is valid", Claims: claims}, nil
 }
 
 // Generate Authenication token for the user
@@ -94,6 +116,25 @@ func (s *AuthService) generateJWTToken(username string) (string, error) {
     }
 
     return signedToken, nil
+}
+
+// Validate JWT token
+func (s *AuthService) validateJWTToken(tokenString string) (jwt.MapClaims, error) {
+    token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+        // Validate the token signing method
+        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+            return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+        }
+        return []byte(s.config.JWTSecretKey()), nil
+    })
+    if err != nil {
+        return nil, err
+    }
+
+    if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+        return claims, nil
+    }
+    return nil, fmt.Errorf("Invalid token")
 }
 
 // hashPassword hashes the given password using bcrypt

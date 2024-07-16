@@ -1,7 +1,7 @@
 package main
 
 import (
-	"auth_service/pkg/auth"
+	"auth_service/pkg/order"
 	"fmt"
 )
 
@@ -10,15 +10,15 @@ func init() {
 }
 
 func main() {
-	var authsvr *auth.Server = nil	
-	config:=auth.LoadConfig()
+	var orderSvr *order.Server = nil	
+	config:=order.LoadConfig()
 	// grpc server
-	authsvr, err = auth.NewServer(
+	orderSvr, err = order.NewServer(
 		config,
 	)
 	if err != nil {
-		fmt.Println("[ERROR] Exiting server, error : %v", err)
+		fmt.Println("[ERROR] Exiting Order server, error : %v", err)
 		return
 	}
-	authsvr.Start()
+	orderSvr.Start()
 }

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-database-service-config
+data:
+  config.yaml: |
+    grpc_port: "50051"
+    database_type: "mongodb" # or "postgres"
+    mongodb_uri: "mongodb://localhost:27017"
+    mongodb_name: "ordersdb"
+    postgresql_dsn: "host=localhost port=5432 user=user1 password=temp123 dbname=ordersdb sslmode=disable"
+    query_timeout_seconds: 5

@@ -3,8 +3,9 @@ syntax = "proto3";
 package auth_service;
 
 service AuthService {
-    rpc Login (LoginRequest) returns (LoginResponse);
-    rpc Register (RegisterRequest) returns (RegisterResponse);
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc Register(RegisterRequest) returns (RegisterResponse);
+    rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
 }
 
 message LoginRequest {
@@ -24,4 +25,13 @@ message RegisterRequest {
 
 message RegisterResponse {
     string message = 1;
+}
+
+message AuthenticateRequest {
+    string token = 1;
+}
+
+message AuthenticateResponse {
+    bool valid = 1;
+    string message = 2;
 }

@@ -1,33 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-service
+  name: order-database-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auth-service
+      app: order-database-service
   template:
     metadata:
       labels:
-        app: auth-service
+        app: order-database-service
     spec:
       containers:
-      - name: auth-service
-        image: <docker hub>/auth_service:latest
+      - name: order-database-service
+        image: order_database_service:latest
         ports:
         - containerPort: 50051
         envFrom:
         - configMapRef:
-            name: auth-service-config
+            name: order-database-service-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth-service
+  name: order-database-service
 spec:
   selector:
-    app: auth-service
+    app: order-database-service
   ports:
   - protocol: TCP
     port: 50051
