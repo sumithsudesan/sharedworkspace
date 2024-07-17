@@ -1,7 +1,7 @@
 package main
 
 import (
-	"auth_service/pkg/database"
+	"order_database_service/pkg/database"
 	"fmt"
 )
 

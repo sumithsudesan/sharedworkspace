@@ -1,7 +1,7 @@
 package main
 
 import (
-	"auth_service/pkg/order"
+	"order_service/pkg/order"
 	"fmt"
 )
 
