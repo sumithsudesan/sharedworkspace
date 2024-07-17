@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dslapp-webhook
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dslapp-webhook
+  template:
+    metadata:
+      labels:
+        app: dslapp-webhook
+    spec:
+      containers:
+        - name: dslapp-webhook
+          image: dslapp-webhook:v2.0.0  
+          ports:
+            - containerPort: 443
+          volumeMounts:
+            - name: webhook-certs
+              mountPath: /etc/webhook-certs
+              readOnly: true
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: dslapp-webhook-certs  

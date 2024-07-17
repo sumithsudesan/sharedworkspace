@@ -1,0 +1,25 @@
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: dslapp-validation-webhook
+webhooks:
+  - name: dslapp.test.com
+    clientConfig:
+      service:
+        namespace: default
+        name: dslapp-webhook-svc  # Update with your webhook service name
+        path: "/validate"  # Update with your webhook endpoint path
+    admissionReviewVersions:
+      - v1beta1
+      - v1
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: ["dsl.test.com"]  # Update with your CRD group
+        apiVersions: ["v1"]
+        resources: ["dslapps"]  # Update with your CRD resource
+        scope: "Namespaced"
+        sideEffects: "None"
+        timeoutSeconds: 5
+        matchPolicy: "Exact"
+        failurePolicy: "Fail"

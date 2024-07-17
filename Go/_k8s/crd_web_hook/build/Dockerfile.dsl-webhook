@@ -1,0 +1,28 @@
+# Start with a base golang alpine image
+FROM golang:1.18-alpine AS builder
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy go mod and sum files
+COPY crd_web_hook/deploy/crd-definition.yaml ./
+COPY crd_web_hook/pkg/crd/v1/dslapp_types.go ./
+COPY crd_web_hook/pkg/crd/v2/dslapp_types.go ./
+
+# Copy the source code from the current directory to the Working Directory inside the container
+COPY . .
+
+# Build the webhook
+RUN go build -o webhook .
+
+# Start a new stage from scratch
+FROM alpine:latest
+
+# Copy the Pre-built binary file from the previous stage
+COPY --from=builder /app/webhook /webhook
+
+# Expose port 443 for HTTPS
+EXPOSE 443
+
+# Command to run the executable
+ENTRYPOINT ["/webhook"]

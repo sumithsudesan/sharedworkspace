@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dslapp-scheduler
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dslapp-scheduler
+  template:
+    metadata:
+      labels:
+        app: dslapp-scheduler
+    spec:
+      containers:
+      - name: dslapp-scheduler
+        image: dslapp-scheduler:latest
+        command: ["/usr/local/bin/dslapp-scheduler"]
+        resources:
+          limits:
+            cpu: 1
+            memory: 512Mi
+      serviceAccountName: dslapp-scheduler

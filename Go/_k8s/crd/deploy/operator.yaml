@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dslapp-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dslapp-operator
+  template:
+    metadata:
+      labels:
+        app: dslapp-operator
+    spec:
+      priorityClassName: system-node-critical
+      serviceAccountName: dslapp-operator
+      containers:
+        - name: operator
+          image: dslapp-operator:v1
+          imagePullPolicy: Always

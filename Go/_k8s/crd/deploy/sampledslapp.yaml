@@ -1,0 +1,12 @@
+apiVersion: test.com/v1
+kind: DSLApp
+metadata:
+  name: my-dslapp
+spec:
+  app: my-app
+  minPods: 2
+  maxPods: 5
+  cpuLimit: 2
+  gpuLimit: 1
+  freePods: 3
+  memoryLimit: 4096

@@ -1,0 +1,35 @@
+# Start with a base golang image
+FROM golang:1.18 AS builder
+
+# Set the Current Working Directory inside the container
+WORKDIR /go/src/app
+
+# Copy the go mod and sum files
+COPY crd/cmd/main.go .
+COPY crd/pkg/controller/ ./pkg/controller/
+COPY crd/pkg/crd/ ./pkg/crd/
+
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod tidy
+RUN go mod download
+
+# Build the Go app
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o dslapp-operator ./cmd/main.go
+
+# Use a minimal base image
+FROM alpine:latest
+
+# Set the Current Working Directory inside the container
+WORKDIR /root/
+
+# Copy the Pre-built binary file from the previous stage
+COPY --from=builder /go/src/app/dslapp-operator .
+
+# Copy RBAC YAML file
+COPY crd/deploy/rbac.yaml .
+
+# Expose any necessary ports
+# EXPOSE 8080
+
+# Run the operator binary
+ENTRYPOINT ["./dslapp-operator"]
