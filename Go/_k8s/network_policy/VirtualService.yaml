@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: dslapp
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - istio-system/ingressgateway
+  http:
+  - route:
+    - destination:
+        host: dslapp
+        subset: primary
+      weight: 80
+    - destination:
+        host: dslapp
+        subset: secondary
+      weight: 20

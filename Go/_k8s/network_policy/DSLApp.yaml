@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dslapp-primary
+  labels:
+    app: dslapp
+    version: primary
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dslapp
+      version: primary
+  template:
+    metadata:
+      labels:
+        app: dslapp
+        version: primary
+    spec:
+      containers:
+      - name: dslapp
+        image: dslapp-image:v1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dslapp-secondary
+  labels:
+    app: dslapp
+    version: secondary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dslapp
+      version: secondary
+  template:
+    metadata:
+      labels:
+        app: dslapp
+        version: secondary
+    spec:
+      containers:
+      - name: dslapp
+        image: dslapp-image:v2
